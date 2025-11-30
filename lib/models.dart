@@ -1,10 +1,12 @@
 // lib/models.dart
+
 import 'package:flutter/material.dart';
 
 /// Model untuk merepresentasikan sebuah Lagu.
 class SongModel {
   final String title;
   final String artist;
+  // assetFileName berisi NAMA FILE MUSIK (e.g., "Lagu.mp3")
   final String assetFileName; 
   final Duration duration;
   
