@@ -1,6 +1,25 @@
 import 'package:flutter/material.dart';
 
-// --- 1. Model Data Kategori Musik ---
+// ------------------------------------------------------------------
+// --- MODEL DATA ---
+// ------------------------------------------------------------------
+
+// Model Data Lagu
+class Song {
+  final String title;
+  final String artist;
+  final String albumArtUrl;
+  final Duration duration;
+  
+  const Song({
+    required this.title,
+    required this.artist,
+    required this.albumArtUrl,
+    required this.duration,
+  });
+}
+
+// Model Data Kategori Musik
 class MusicCategory {
   final String name;
   final IconData icon;
@@ -8,6 +27,11 @@ class MusicCategory {
 
   const MusicCategory({required this.name, required this.icon, required this.color});
 }
+
+
+// ------------------------------------------------------------------
+// --- DASHBOARD PAGE ---
+// ------------------------------------------------------------------
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -18,39 +42,55 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   
-  // Daftar Kategori Musik (hanya 4 item)
+  // Daftar Kategori Musik (dibuat sesuai dengan folder assets Anda)
   final List<MusicCategory> _categories = const [
-    MusicCategory(name: "Pop", icon: Icons.album, color: Colors.blue),
-    MusicCategory(name: "Rock", icon: Icons.album, color: Colors.red), 
-    MusicCategory(name: "Jazz", icon: Icons.audiotrack, color: Colors.purple),
-    MusicCategory(name: "Klasik", icon: Icons.piano, color: Colors.green),
+    MusicCategory(name: "Original", icon: Icons.music_note, color: Colors.blue),
+    MusicCategory(name: "Cover", icon: Icons.mic_external_on, color: Colors.red), 
+    MusicCategory(name: "Akustik", icon: Icons.queue_music, color: Colors.purple),
+    MusicCategory(name: "Karaoke", icon: Icons.album, color: Colors.green),
   ];
 
   late final List<MusicCategory> _initialCategories = _categories;
 
+  // Data Lagu Sampel berdasarkan Kategori
+  final Map<String, List<Song>> _songsByCategories = const {
+    "Original": [
+      Song(title: "Lagu A (Original)", artist: "Artis X", albumArtUrl: "assets/covers/original_1.jpg", duration: Duration(minutes: 4, seconds: 15)),
+      Song(title: "Lagu B (Original)", artist: "Artis Y", albumArtUrl: "assets/covers/original_2.jpg", duration: Duration(minutes: 3, seconds: 30)),
+    ],
+    "Cover": [
+      Song(title: "Lagu A (Cover)", artist: "Cover Artis 1", albumArtUrl: "assets/covers/cover_1.jpg", duration: Duration(minutes: 4, seconds: 10)),
+      Song(title: "Lagu C (Cover)", artist: "Cover Artis 2", albumArtUrl: "assets/covers/cover_2.jpg", duration: Duration(minutes: 3, seconds: 50)),
+    ],
+    "Akustik": [
+      Song(title: "Lagu Z (Akustik)", artist: "Artis Z", albumArtUrl: "assets/covers/akustik_1.jpg", duration: Duration(minutes: 5, seconds: 20)),
+    ],
+    "Karaoke": [
+      Song(title: "Lagu K (Karaoke)", artist: "Instrumental", albumArtUrl: "assets/covers/karaoke_1.jpg", duration: Duration(minutes: 4, seconds: 05)),
+    ],
+  };
+
   @override
   Widget build(BuildContext context) {
-    // Memberi warna latar belakang putih polos
     return Scaffold(
       backgroundColor: Colors.white, 
       body: CustomScrollView(
         slivers: [
-          // --- 2. HEADER KUSTOM (SLIVER APP BAR) ---
-          // Catatan: SliverAppBar sekarang kosong dan hanya berfungsi sebagai padding di atas.
-          SliverAppBar(
+          // HEADER KUSTOM (Header dan Notifikasi Dihapus)
+          const SliverAppBar(
             backgroundColor: Colors.white,
             automaticallyImplyLeading: false, 
             pinned: false, 
-            toolbarHeight: 0, // Dibuat 0 untuk menghilangkan ruang yang tidak perlu
-            title: const SizedBox.shrink(), // Dikosongkan
+            toolbarHeight: 0, // Dibuat 0 agar tidak memakan tempat
+            title: SizedBox.shrink(),
           ),
           
           SliverList(
             delegate: SliverChildListDelegate(
               [
-                const SizedBox(height: 30), // Menambahkan ruang di atas search bar
+                const SizedBox(height: 30), // Spasi di atas Search Bar
 
-                // --- 3. SEARCH BAR SAJA (Tombol Filter Dihapus) ---
+                // SEARCH BAR SAJA (Filter Dihapus)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
@@ -74,14 +114,13 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                         ),
                       ),
-                      // Tombol Filter (Container 50x50) TELAH DIHAPUS dari sini.
                     ],
                   ),
                 ),
 
                 const SizedBox(height: 30),
 
-                // --- 4. JUDUL KATEGORI ---
+                // JUDUL KATEGORI
                 Padding(
                   padding: const EdgeInsets.only(left: 16.0, bottom: 10.0),
                   child: Text(
@@ -93,7 +132,7 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
           ),
           
-          // --- 5. DAFTAR KATEGORI (GRID VIEW) ---
+          // DAFTAR KATEGORI (GRID VIEW 2x2)
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             sliver: SliverGrid.builder(
@@ -106,7 +145,12 @@ class _DashboardPageState extends State<DashboardPage> {
               itemCount: _initialCategories.length, 
               itemBuilder: (context, index) {
                 final category = _initialCategories[index];
-                return CategoryCard(category: category);
+                final List<Song> songs = _songsByCategories[category.name] ?? []; 
+
+                return CategoryCard(
+                  category: category, 
+                  songs: songs, 
+                );
               },
             ),
           ),
@@ -116,7 +160,7 @@ class _DashboardPageState extends State<DashboardPage> {
               [
                 const SizedBox(height: 30),
                 
-                // --- 6. Bagian Daftar Putar Populer ---
+                // Bagian Daftar Putar Populer
                 Padding(
                   padding: const EdgeInsets.only(left: 16.0, bottom: 10.0),
                   child: Text(
@@ -146,24 +190,27 @@ class _DashboardPageState extends State<DashboardPage> {
 }
 
 
-// Catatan: CategoryCard dan CategorySongsPage tidak berubah, 
-// tetapi harus ada di file Anda agar kode di atas berfungsi.
-
-// Widget untuk setiap kartu kategori (CategoryCard)
+// ------------------------------------------------------------------
+// --- WIDGET CATEGORY CARD (MENGANDUNG NAVIGASI) ---
+// ------------------------------------------------------------------
 class CategoryCard extends StatelessWidget {
   final MusicCategory category;
-
-  const CategoryCard({super.key, required this.category});
+  final List<Song> songs; 
+  
+  const CategoryCard({super.key, required this.category, required this.songs});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        // Asumsi CategorySongsPage sudah didefinisikan di tempat lain
+        // Navigasi, mengirimkan kategori dan daftar lagu yang sesuai
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CategorySongsPage(category: category),
+            builder: (context) => CategorySongsPage(
+              category: category,
+              songs: songs, 
+            ),
           ),
         );
       },
@@ -198,44 +245,62 @@ class CategoryCard extends StatelessWidget {
   }
 }
 
-// Halaman Tujuan Navigasi (CategorySongsPage)
+// ------------------------------------------------------------------
+// --- HALAMAN TUJUAN NAVIGASI (CATEGORYSONGSPAGE) ---
+// ------------------------------------------------------------------
 class CategorySongsPage extends StatelessWidget {
   final MusicCategory category;
+  final List<Song> songs;
 
-  const CategorySongsPage({super.key, required this.category});
+  const CategorySongsPage({super.key, required this.category, required this.songs});
+
+  // Fungsi utilitas untuk memformat durasi (misalnya: 03:20)
+  String _formatDuration(Duration d) {
+    final minutes = d.inMinutes;
+    final seconds = (d.inSeconds % 60).toString().padLeft(2, '0');
+    return "$minutes:$seconds";
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Lagu ${category.name}",
+          category.name,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: category.color,
         foregroundColor: Colors.white, 
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(category.icon, size: 80, color: category.color.withOpacity(0.7)),
-            const SizedBox(height: 20),
-            Text(
-              "Daftar Lagu Kategori ${category.name}",
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
+      body: songs.isEmpty
+          ? Center(child: Text("Tidak ada lagu dalam kategori ${category.name}."))
+          : ListView.builder(
+              padding: const EdgeInsets.only(top: 10),
+              itemCount: songs.length,
+              itemBuilder: (context, index) {
+                final song = songs[index];
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: category.color.withOpacity(0.3),
+                    child: Text(
+                      "${index + 1}",
+                      style: TextStyle(color: category.color),
+                    ), 
+                  ),
+                  title: Text(song.title, style: const TextStyle(fontWeight: FontWeight.w500)),
+                  subtitle: Text(song.artist),
+                  trailing: Text(
+                    _formatDuration(song.duration),
+                  ),
+                  onTap: () {
+                    // Logika memutar lagu
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Memutar ${song.title}"))
+                    );
+                  },
+                );
+              },
             ),
-            const SizedBox(height: 10),
-            const Text(
-              "Di sini akan tampil daftar lagu Populer, Terbaru, dll.",
-              style: TextStyle(color: Colors.grey),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
