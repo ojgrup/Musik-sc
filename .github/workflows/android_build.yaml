@@ -5,17 +5,13 @@ name: Build Flutter Dasar (Android Release)
 # Workflow akan dijalankan saat push ke branch 'main' atau saat manual trigger
 on:
   push:
-    # PERBAIKAN: Mengubah branch pemicu dari 'master' menjadi 'main'.
-    # Mayoritas repositori baru menggunakan 'main'. Sesuaikan ini jika Anda benar-benar menggunakan 'master'.
     branches:
       - main 
-  workflow_dispatch: # Untuk menjalankan build secara manual dari GitHub UI
+  workflow_dispatch:
 
 jobs:
   build_android:
-    # Nama job
     name: Build APK Release
-    # Kita menggunakan Ubuntu untuk lingkungan CI/CD
     runs-on: ubuntu-latest
     
     steps:
@@ -23,34 +19,40 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
       
-      # 2. Setup Java (diperlukan untuk Gradle)
+      # 2. Setup Java
+      # (Penting: Sejak Flutter 3.3, Java 17 disarankan)
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '17' # Versi JDK yang direkomendasikan untuk Android
-
+          java-version: '17' 
+          
       # 3. Setup Flutter SDK
+      # Menggunakan actions/cache untuk mempercepat flutter pub get dan build
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          # Opsional: Jika Anda ingin selalu menggunakan versi stabil terbaru yang tersedia di CI
-          # Anda bisa menghapus 'flutter-version' dan hanya menggunakan channel 'stable'.
           channel: 'stable' 
+          # ⭐️ Perbaikan/Penambahan: Mengaktifkan Caching
+          cache: true
+          cache-key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
       
       # 4. Ambil semua dependensi dari pubspec.yaml
-      - name: Get Dependencies
+      # Langkah ini tetap KRUSIAL untuk mengatasi error 'just_audio'.
+      # Karena kita sudah mengaktifkan cache di langkah 3, langkah ini akan sangat cepat
+      - name: Get Dependencies (Flutter Pub Get)
         run: flutter pub get
 
-      # 5. Buat Build APK (Release)
+      # 5. Build APK (Release)
       - name: Build Android Release APK
+        # Memastikan flutter dan android/gradle dapat diakses
         run: flutter build apk --release
 
       # 6. Upload Artefak (APK) ke GitHub Actions
       - name: Upload Artifact (APK)
         uses: actions/upload-artifact@v4
         with:
-          # Nama yang akan muncul di GitHub Actions Artifacts
           name: flutter-dasar-apk
-          # Path ke file APK yang baru dibuat
+          # Pastikan path ini selalu benar
           path: build/app/outputs/flutter-apk/app-release.apk
+
