@@ -2,6 +2,7 @@
 
 name: Build Flutter Dasar (Android Release)
 
+# Workflow akan dijalankan saat push ke branch 'main' atau saat manual trigger
 on:
   push:
     branches:
@@ -14,39 +15,50 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      # 1. Checkout kode dari repositori
       - name: Checkout Code
         uses: actions/checkout@v4
       
+      # 2. Setup Java
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17' 
 
-      # ⭐️ TAMBAHAN KRUSIAL: Menyetujui Lisensi Android SDK secara eksplisit
-      # Ini mengatasi potensi masalah hak cipta atau lisensi yang tersisa di CI.
-      - name: Accept Android SDK licenses
-        run: yes | sdkmanager --licenses
-      
-      # ⭐️ Setup Flutter dengan CACHE
+      # ⭐️ 3. SETUP LINGKUNGAN ANDROID DAN ACCEPT LISENSI (Perbaikan Utama)
+      # Ini mengatasi error 'sdkmanager: command not found' dan memastikan lisensi disetujui.
+      - name: Setup Android SDK and Accept licenses
+        # Kita menggunakan 'bash' dan 'run' multi-baris untuk mengatur PATH dan ENV.
+        run: |
+          # Menambahkan Android SDK tools ke PATH sistem
+          echo "ANDROID_HOME=$HOME/Android/sdk" >> $GITHUB_ENV
+          echo "$HOME/Android/sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          
+          # Menyetujui lisensi SDK (mengatasi proses yang macet)
+          yes | sdkmanager --licenses
+        shell: bash
+
+      # 4. Setup Flutter SDK
+      # Menggunakan cache untuk kecepatan
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable' 
-          # Menggunakan cache key yang unik untuk setiap set dependencies
           cache: true
           cache-key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
       
-      # ⭐️ LANGKAH PENTING: Get Dependencies
-      # Setelah cache di-restore, ini akan menginstal dependencies yang hilang atau baru.
+      # 5. Get Dependencies (Wajib untuk 'just_audio')
       - name: Get Dependencies (Flutter Pub Get)
+        # Langkah ini mengatasi error 'Couldn't resolve the package just_audio'.
         run: flutter pub get
 
-      # ⭐️ Build APK (Release)
+      # 6. Build APK (Release)
       - name: Build Android Release APK
-        # Menambahkan --stacktrace untuk debug yang lebih baik jika gagal
+        # Menambahkan --verbose untuk debug yang lebih baik jika ada kegagalan baru
         run: flutter build apk --release --verbose
 
+      # 7. Upload Artefak (APK)
       - name: Upload Artifact (APK)
         uses: actions/upload-artifact@v4
         with:
