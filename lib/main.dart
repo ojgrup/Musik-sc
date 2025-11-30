@@ -1,5 +1,7 @@
+// lib/main.dart
+
 import 'package:flutter/material.dart';
-// Import 'dashboard.dart' dari project lokal Anda
+// PASTIKAN NAMA PACKAGE ANDA ('app_dasar') SUDAH BENAR
 import 'package:app_dasar/dashboard.dart'; 
 
 void main() {
@@ -12,13 +14,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Aplikasi Pemutar Musik Dasar', // Tambahkan judul aplikasi
+      title: 'Aplikasi Pemutar Musik Dasar', 
       debugShowCheckedModeBanner: false,
-      theme: ThemeData( // Tambahkan tema dasar
+      theme: ThemeData( 
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      home: const DashboardPage(),
+      // Memastikan memanggil widget utama dari dashboard.dart
+      home: const DashboardPage(), 
     );
   }
 }
