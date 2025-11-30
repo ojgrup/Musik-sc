@@ -6,7 +6,7 @@ class MusicCategory {
   final IconData icon;
   final Color color;
 
-  MusicCategory({required this.name, required this.icon, required this.color});
+  const MusicCategory({required this.name, required this.icon, required this.color});
 }
 
 class DashboardPage extends StatefulWidget {
@@ -18,10 +18,11 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   
-  // GANTI: Data layanan rumah menjadi Data Kategori Musik
-  final List<MusicCategory> _categories = [
+  // Daftar Kategori Musik
+  final List<MusicCategory> _categories = const [
+    // Ikon 'electric_guitar' diganti dengan 'album' untuk menghindari error build
     MusicCategory(name: "Pop", icon: Icons.album, color: Colors.blue),
-    MusicCategory(name: "Rock", icon: Icons.electric_guitar, color: Colors.red),
+    MusicCategory(name: "Rock", icon: Icons.album, color: Colors.red), 
     MusicCategory(name: "Jazz", icon: Icons.audiotrack, color: Colors.purple),
     MusicCategory(name: "Klasik", icon: Icons.piano, color: Colors.green),
     MusicCategory(name: "Hip Hop", icon: Icons.speaker, color: Colors.teal),
@@ -30,18 +31,17 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Memberi warna latar belakang putih polos agar cocok dengan gambar
+    // Memberi warna latar belakang putih polos
     return Scaffold(
       backgroundColor: Colors.white, 
       body: CustomScrollView(
         slivers: [
           // --- 2. HEADER KUSTOM (SLIVER APP BAR) ---
-          // Menggunakan SliverAppBar agar header lebih fleksibel dan terintegrasi
           SliverAppBar(
             backgroundColor: Colors.white,
-            automaticallyImplyLeading: false, // Menghilangkan tombol back default
-            pinned: false, // Header akan hilang saat digulir
-            toolbarHeight: 80, // Tinggi AppBar yang lebih besar
+            automaticallyImplyLeading: false, 
+            pinned: false, 
+            toolbarHeight: 80, 
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -80,24 +80,24 @@ class _DashboardPageState extends State<DashboardPage> {
               [
                 const SizedBox(height: 10),
 
-                // --- 3. SEARCH BAR DAN FILTER (Mirip Gambar) ---
+                // --- 3. SEARCH BAR DAN FILTER ---
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     children: [
                       Expanded(
                         child: Container(
-                          height: 50, // Tinggi konsisten
+                          height: 50, 
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.grey.shade300, width: 1), // Garis tepi ringan
+                            border: Border.all(color: Colors.grey.shade300, width: 1),
                           ),
                           child: const TextField(
                             decoration: InputDecoration(
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                              hintText: "Search For Any Music", // Disesuaikan ke musik
+                              hintText: "Search For Any Music", 
                               hintStyle: TextStyle(color: Colors.grey),
                               prefixIcon: Icon(Icons.search, color: Colors.black),
                             ),
@@ -105,16 +105,16 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      // Tombol Filter (Ikon harus diganti agar sesuai dengan gambar)
+                      // Tombol Filter
                       Container(
                         width: 50,
                         height: 50,
                         decoration: BoxDecoration(
-                          color: Colors.black, // Warna hitam untuk filter seperti di gambar
+                          color: Colors.black, 
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Icon(
-                          Icons.filter_list, // Ikon Filter
+                          Icons.filter_list, 
                           color: Colors.white,
                           size: 28,
                         ),
@@ -143,7 +143,6 @@ class _DashboardPageState extends State<DashboardPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     itemBuilder: (context, index) {
                       final category = _categories[index];
-                      // Memanggil widget kategori card
                       return Padding(
                         padding: const EdgeInsets.only(right: 12),
                         child: CategoryCard(category: category),
@@ -154,7 +153,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
                 const SizedBox(height: 30),
                 
-                // --- 6. Bagian Daftar Putar Populer (Contoh) ---
+                // --- 6. Bagian Daftar Putar Populer (Contoh Placeholder) ---
                 Padding(
                   padding: const EdgeInsets.only(left: 16.0, bottom: 10.0),
                   child: Text(
@@ -163,7 +162,18 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                 ),
                 
-                // ... Di sini Anda bisa menambahkan ListView.builder untuk Daftar Lagu (Playlist)
+                // Tempat di mana daftar lagu/playlist akan ditampilkan
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Center(
+                    child: Text(
+                      "Tempat List Lagu/Playlist akan muncul di sini.",
+                      style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: 50),
               ],
             ),
           ),
@@ -174,7 +184,7 @@ class _DashboardPageState extends State<DashboardPage> {
 }
 
 
-// Widget untuk setiap kartu kategori (Diambil dari kode sebelumnya)
+// Widget untuk setiap kartu kategori
 class CategoryCard extends StatelessWidget {
   final MusicCategory category;
 
@@ -184,13 +194,14 @@ class CategoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        // NAVIGASI: Arahkan ke halaman daftar lagu berdasarkan kategori
+        // Logika navigasi ke halaman daftar lagu berdasarkan kategori
+        // Di sini Anda akan menggunakan Navigator.push() ke halaman CategorySongsPage
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Anda memilih kategori: ${category.name}'))
+          SnackBar(content: Text('Anda memilih kategori: ${category.name}. Akan menuju ke daftar lagu!'))
         );
       },
       child: Container(
-        width: 100, // Lebar untuk tampilan horizontal
+        width: 100, 
         decoration: BoxDecoration(
           color: category.color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
