@@ -18,16 +18,17 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   
-  // Daftar Kategori Musik
+  // Perbaikan: Daftar Kategori Musik sekarang hanya berisi 4 item
   final List<MusicCategory> _categories = const [
-    // Ikon 'electric_guitar' diganti dengan 'album' untuk menghindari error build
     MusicCategory(name: "Pop", icon: Icons.album, color: Colors.blue),
     MusicCategory(name: "Rock", icon: Icons.album, color: Colors.red), 
     MusicCategory(name: "Jazz", icon: Icons.audiotrack, color: Colors.purple),
     MusicCategory(name: "Klasik", icon: Icons.piano, color: Colors.green),
-    MusicCategory(name: "Hip Hop", icon: Icons.speaker, color: Colors.teal),
-    MusicCategory(name: "Indie", icon: Icons.mic, color: Colors.brown),
   ];
+
+  // Karena daftar sudah 4, kita bisa menggunakan _categories langsung
+  // atau membuat alias jika diperlukan di masa depan.
+  late final List<MusicCategory> _initialCategories = _categories;
 
   @override
   Widget build(BuildContext context) {
@@ -133,24 +134,33 @@ class _DashboardPageState extends State<DashboardPage> {
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                   ),
                 ),
+              ],
+            ),
+          ),
+          
+          // --- 5. DAFTAR KATEGORI (GRID VIEW) ---
+          // Menggantikan ListView horizontal dengan SliverGrid agar tampil 2 kolom
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverGrid.builder(
+              // Menentukan tata letak grid: 2 kolom
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2, // 2 item per baris
+                crossAxisSpacing: 16, // Jarak horizontal
+                mainAxisSpacing: 16, // Jarak vertikal
+                childAspectRatio: 2.0, // Rasio lebar/tinggi kartu
+              ),
+              itemCount: _initialCategories.length, 
+              itemBuilder: (context, index) {
+                final category = _initialCategories[index];
+                return CategoryCard(category: category);
+              },
+            ),
+          ),
 
-                // --- 5. DAFTAR KATEGORI (HORIZONTAL SCROLL) ---
-                SizedBox(
-                  height: 120,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _categories.length,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemBuilder: (context, index) {
-                      final category = _categories[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 12),
-                        child: CategoryCard(category: category),
-                      );
-                    },
-                  ),
-                ),
-
+          SliverList(
+            delegate: SliverChildListDelegate(
+              [
                 const SizedBox(height: 30),
                 
                 // --- 6. Bagian Daftar Putar Populer (Contoh Placeholder) ---
@@ -194,34 +204,34 @@ class CategoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        // Logika navigasi ke halaman daftar lagu berdasarkan kategori
-        // Di sini Anda akan menggunakan Navigator.push() ke halaman CategorySongsPage
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Anda memilih kategori: ${category.name}. Akan menuju ke daftar lagu!'))
         );
       },
       child: Container(
-        width: 100, 
+        // width dihapus karena ukuran diatur oleh SliverGrid
         decoration: BoxDecoration(
           color: category.color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: category.color.withOpacity(0.3), width: 1.5),
         ),
-        child: Column(
+        child: Row( // Menggunakan Row untuk tampilan Icon dan Text berdampingan
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(category.icon, size: 35, color: category.color),
-            const SizedBox(height: 8),
-            Text(
-              category.name,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: category.color,
-                fontSize: 14,
+            Icon(category.icon, size: 30, color: category.color),
+            const SizedBox(width: 8),
+            Expanded( // Expanded untuk memastikan teks tidak meluap
+              child: Text(
+                category.name,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: category.color,
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.left,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
