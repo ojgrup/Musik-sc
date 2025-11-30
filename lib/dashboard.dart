@@ -18,7 +18,7 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   
-  // Perbaikan: Daftar Kategori Musik sekarang hanya berisi 4 item
+  // Daftar Kategori Musik (hanya 4 item)
   final List<MusicCategory> _categories = const [
     MusicCategory(name: "Pop", icon: Icons.album, color: Colors.blue),
     MusicCategory(name: "Rock", icon: Icons.album, color: Colors.red), 
@@ -26,8 +26,6 @@ class _DashboardPageState extends State<DashboardPage> {
     MusicCategory(name: "Klasik", icon: Icons.piano, color: Colors.green),
   ];
 
-  // Karena daftar sudah 4, kita bisa menggunakan _categories langsung
-  // atau membuat alias jika diperlukan di masa depan.
   late final List<MusicCategory> _initialCategories = _categories;
 
   @override
@@ -38,50 +36,21 @@ class _DashboardPageState extends State<DashboardPage> {
       body: CustomScrollView(
         slivers: [
           // --- 2. HEADER KUSTOM (SLIVER APP BAR) ---
+          // Catatan: SliverAppBar sekarang kosong dan hanya berfungsi sebagai padding di atas.
           SliverAppBar(
             backgroundColor: Colors.white,
             automaticallyImplyLeading: false, 
             pinned: false, 
-            toolbarHeight: 80, 
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    // Icon Profil
-                    const Icon(Icons.account_circle, size: 40, color: Colors.black87),
-                    const SizedBox(width: 12),
-                    // Teks "Hallo" dan Nama
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Hallo ✨", 
-                          style: TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.normal)
-                        ),
-                        Text(
-                          "Dennis Dwi Musti", 
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87
-                          )
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                // Icon Notifikasi
-                const Icon(Icons.notifications, size: 30, color: Colors.black87),
-              ],
-            ),
+            toolbarHeight: 0, // Dibuat 0 untuk menghilangkan ruang yang tidak perlu
+            title: const SizedBox.shrink(), // Dikosongkan
           ),
           
           SliverList(
             delegate: SliverChildListDelegate(
               [
-                const SizedBox(height: 10),
+                const SizedBox(height: 30), // Menambahkan ruang di atas search bar
 
-                // --- 3. SEARCH BAR DAN FILTER ---
+                // --- 3. SEARCH BAR SAJA (Tombol Filter Dihapus) ---
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
@@ -105,21 +74,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 10),
-                      // Tombol Filter
-                      Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.black, 
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(
-                          Icons.filter_list, 
-                          color: Colors.white,
-                          size: 28,
-                        ),
-                      ),
+                      // Tombol Filter (Container 50x50) TELAH DIHAPUS dari sini.
                     ],
                   ),
                 ),
@@ -139,16 +94,14 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
           
           // --- 5. DAFTAR KATEGORI (GRID VIEW) ---
-          // Menggantikan ListView horizontal dengan SliverGrid agar tampil 2 kolom
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             sliver: SliverGrid.builder(
-              // Menentukan tata letak grid: 2 kolom
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // 2 item per baris
-                crossAxisSpacing: 16, // Jarak horizontal
-                mainAxisSpacing: 16, // Jarak vertikal
-                childAspectRatio: 2.0, // Rasio lebar/tinggi kartu
+                crossAxisCount: 2, 
+                crossAxisSpacing: 16, 
+                mainAxisSpacing: 16, 
+                childAspectRatio: 2.0, 
               ),
               itemCount: _initialCategories.length, 
               itemBuilder: (context, index) {
@@ -163,7 +116,7 @@ class _DashboardPageState extends State<DashboardPage> {
               [
                 const SizedBox(height: 30),
                 
-                // --- 6. Bagian Daftar Putar Populer (Contoh Placeholder) ---
+                // --- 6. Bagian Daftar Putar Populer ---
                 Padding(
                   padding: const EdgeInsets.only(left: 16.0, bottom: 10.0),
                   child: Text(
@@ -172,7 +125,6 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                 ),
                 
-                // Tempat di mana daftar lagu/playlist akan ditampilkan
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
                   child: Center(
@@ -194,7 +146,10 @@ class _DashboardPageState extends State<DashboardPage> {
 }
 
 
-// Widget untuk setiap kartu kategori
+// Catatan: CategoryCard dan CategorySongsPage tidak berubah, 
+// tetapi harus ada di file Anda agar kode di atas berfungsi.
+
+// Widget untuk setiap kartu kategori (CategoryCard)
 class CategoryCard extends StatelessWidget {
   final MusicCategory category;
 
@@ -204,23 +159,26 @@ class CategoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Anda memilih kategori: ${category.name}. Akan menuju ke daftar lagu!'))
+        // Asumsi CategorySongsPage sudah didefinisikan di tempat lain
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CategorySongsPage(category: category),
+          ),
         );
       },
       child: Container(
-        // width dihapus karena ukuran diatur oleh SliverGrid
         decoration: BoxDecoration(
           color: category.color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: category.color.withOpacity(0.3), width: 1.5),
         ),
-        child: Row( // Menggunakan Row untuk tampilan Icon dan Text berdampingan
+        child: Row( 
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(category.icon, size: 30, color: category.color),
             const SizedBox(width: 8),
-            Expanded( // Expanded untuk memastikan teks tidak meluap
+            Expanded( 
               child: Text(
                 category.name,
                 style: TextStyle(
@@ -232,6 +190,48 @@ class CategoryCard extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Halaman Tujuan Navigasi (CategorySongsPage)
+class CategorySongsPage extends StatelessWidget {
+  final MusicCategory category;
+
+  const CategorySongsPage({super.key, required this.category});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Lagu ${category.name}",
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: category.color,
+        foregroundColor: Colors.white, 
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(category.icon, size: 80, color: category.color.withOpacity(0.7)),
+            const SizedBox(height: 20),
+            Text(
+              "Daftar Lagu Kategori ${category.name}",
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              "Di sini akan tampil daftar lagu Populer, Terbaru, dll.",
+              style: TextStyle(color: Colors.grey),
             ),
           ],
         ),
